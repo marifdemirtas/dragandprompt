@@ -31,7 +31,10 @@ const TestPageModal = ({ test, onSave, onClose }) => {
   const [newQuestionType, setNewQuestionType] = useState(null);
   const [newQuestion, setNewQuestion] = useState({});
   const [isGenerating, setIsGenerating] = useState(false);
-  // const llmKey=...;
+  const [llmKey, setLlmKey] = useState(() => {
+    const LLM_KEY_STORAGE = 'llm-api-key';
+    return localStorage.getItem(LLM_KEY_STORAGE) || "";
+  });
 
   const questionTypeIcons = {
     "MCQ": <QuizIcon />,

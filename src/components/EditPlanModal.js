@@ -83,6 +83,10 @@ const EditPlanModal = ({ plan, onSave, onClose }) => {
   const [expandedBox, setExpandedBox] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [viewMode, setViewMode] = useState('compare'); // 'edit', 'preview', or 'compare'
+  const [llmKey, setLlmKey] = useState(() => {
+    const LLM_KEY_STORAGE = 'llm-api-key';
+    return localStorage.getItem(LLM_KEY_STORAGE) || "";
+  });
 
   const handleSave = () => {
     onSave(editedPlan);
@@ -796,7 +800,7 @@ const EditPlanModal = ({ plan, onSave, onClose }) => {
           </AccordionSummary>
           <AccordionDetails>
             <PlanQuestions
-              llmKey="..."
+              llmKey={llmKey}
               planJson={editedPlan}
               questions={editedPlan.questions || []}
               onUpdateQuestions={(updatedQuestions) =>

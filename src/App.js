@@ -24,6 +24,7 @@ import LLMKeyModal from "./components/LLMKeyModal";
 import { exportRST, generateContextualExamples, generateContextualExample, generateGroupRST } from './utils/rstConverter';
 import TestPageModal from "./components/TestPageModal";
 import ViewListIcon from '@mui/icons-material/ViewList';
+import examplePlans from './data/plans-sql.json';
 
 const STORAGE_KEY = 'programming-plans-autosave';
 const LLM_KEY_STORAGE = 'llm-api-key';
@@ -33,7 +34,14 @@ const GROUP_TAGS_STORAGE = 'group-tags';
 function App() {
   const [plans, setPlans] = useState(() => {
     const savedPlans = localStorage.getItem(STORAGE_KEY);
-    return savedPlans ? JSON.parse(savedPlans) : [];
+    if (savedPlans) {
+      return JSON.parse(savedPlans);
+    } else {
+      // If no saved plans exist, load the example plans
+      const exampleData = examplePlans;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(exampleData));
+      return exampleData;
+    }
   });
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
@@ -44,7 +52,15 @@ function App() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [llmKey, setLlmKey] = useState(() => {
-    return localStorage.getItem(LLM_KEY_STORAGE) || "";
+    const savedKey = localStorage.getItem(LLM_KEY_STORAGE);
+    if (savedKey) {
+      return savedKey;
+    } else {
+      // Set a default key if none exists
+      const defaultKey = "9b7XCgAKKWBNvk0mo4hjGAVyjsRAgvZgNeZyS7AwHZzjb2LIiD3oJQQJ99AJACHrzpqXJ3w3AAABACOGgOO6|https://north-by-northwest.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview"; // Replace with your actual default key
+      localStorage.setItem(LLM_KEY_STORAGE, defaultKey);
+      return defaultKey;
+    }
   });
   const [llmModalOpen, setLlmModalOpen] = useState(false);
   const [cachedExamples, setCachedExamples] = useState(() => {
@@ -498,6 +514,14 @@ function App() {
     setEditingTag(null);
   };
 
+  const handleLoadExamplePlans = () => {
+    if (window.confirm('Loading example plans will replace your current plans. Continue?')) {
+      handleFileUpload(examplePlans);
+      setSnackbarMessage('Example plans loaded');
+      setSnackbarOpen(true);
+    }
+  };
+
   return (
     <Box 
       sx={{ 
@@ -553,6 +577,13 @@ function App() {
               }}>
                 <UploadIcon sx={{ mr: 1 }} />
                 Upload JSON
+              </MenuItem>
+              <MenuItem onClick={() => {
+                handleLoadExamplePlans();
+                closeDataMenu();
+              }}>
+                <UploadIcon sx={{ mr: 1 }} />
+                Load Example Plans
               </MenuItem>
               <MenuItem onClick={() => {
                 handleExport();
@@ -985,7 +1016,7 @@ function App() {
            
         </Typography>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-          2023-2024 • Built by <a href="https://marifdemirtas.github.io">Arif</a> from TRAILS Lab at UIUC
+          2025 • Built by <a href="https://marifdemirtas.github.io">Arif</a> from TRAILS Lab at UIUC
         </Typography>
       </Paper>
     </Box>
